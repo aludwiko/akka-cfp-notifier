@@ -1,0 +1,22 @@
+name: cfp-notifier
+service:
+  telemetry:
+    tracing:
+      enabled: true
+  env:
+  - name: SLACK_WEBHOOK_URL
+    valueFrom:
+      secretKeyRef:
+        key: slack-webhook-url
+        name: slack-secret
+  - name: SLACK_BOT_OAUTH_TOKEN
+    valueFrom:
+      secretKeyRef:
+        key: slack-bot-oauth-token
+        name: slack-secret
+  - name: SLACK_VERIFICATION_TOKEN
+    valueFrom:
+      secretKeyRef:
+        key: slack-verification-token
+        name: slack-secret
+  image: ${CFP_NOTIFIER_IMAGE}
