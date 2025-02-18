@@ -57,8 +57,8 @@ jobs:
           mvn deploy --no-transfer-progress
       - name: Deploy
         run: |
-          export dockerImage=`mvn git-commit-id:revision help:evaluate -Dexpression=dockerImage -q -DforceStdout `
-          export dockerTag=`mvn git-commit-id:revision help:evaluate -Dexpression=dockerTag -q -DforceStdout`
+          export dockerImage=`mvn git-commit-id:revision help:evaluate -Dexpression=docker.image -q -DforceStdout`
+          export dockerTag=`mvn git-commit-id:revision help:evaluate -Dexpression=docker.tag -q -DforceStdout`
           export CFP_NOTIFIER_IMAGE=$dockerImage:$dockerTag
           cat cfp-notifier.yml | envsubst > cfp-notifier-subst.yml
           akka service apply -f cfp-notifier-subst.yml

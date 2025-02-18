@@ -16,6 +16,15 @@
 
   <name>cfp-notifier</name>
 
+  <properties>
+    <akkaContainerRegistry>kcr.us-east-1.kalix.io</akkaContainerRegistry>
+    <akkaOrganization>lightbend-eng</akkaOrganization>
+
+    <docker.image>${akkaContainerRegistry}/${akkaOrganization}/${project.artifactId}</docker.image>
+    <docker.tag>${project.version}-${git.commit.id.abbrev}</docker.tag>
+    <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>com.typesafe.akka</groupId>
@@ -40,4 +49,27 @@
     </dependency>
   </dependencies>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>io.github.git-commit-id</groupId>
+        <artifactId>git-commit-id-maven-plugin</artifactId>
+        <version>7.0.0</version>
+        <executions>
+          <execution>
+            <id>get-the-git-infos</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>revision</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <verbose>false</verbose>
+          <injectAllReactorProjects>true</injectAllReactorProjects>
+        </configuration>
+      </plugin>
+    </plugins>
+
+  </build>
 </project>
