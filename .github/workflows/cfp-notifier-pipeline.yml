@@ -54,7 +54,7 @@ jobs:
         run: akka service list
       - name: Publish docker
         run: |
-          mvn deploy --no-transfer-progress
+          mvn validate docker:push --no-transfer-progress
       - name: Deploy
         run: |
           export dockerImage=`mvn git-commit-id:revision help:evaluate -Dexpression=docker.image -q -DforceStdout`
