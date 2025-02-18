@@ -49,7 +49,7 @@ jobs:
         uses: akka/setup-akka-cli-action@v1
         with:
           token: ${{ secrets.AKKA_PROD_TOKEN }}
-          project-id: ${{ vars.AKKA_PROD_PROJECT_ID }}
+          project-id: ${{ secrets.AKKA_PROD_PROJECT_ID }}
       - name: Test
         run: akka service list
       - name: Publish docker
@@ -72,7 +72,7 @@ jobs:
         uses: akka/setup-akka-cli-action@v1
         with:
           token: ${{ secrets.AKKA_PROD_TOKEN }}
-          project-id: ${{ vars.AKKA_PROD_PROJECT_ID }}
+          project-id: ${{ secrets.AKKA_PROD_PROJECT_ID }}
       - name: Verify
         run: |
           # Replace the following line with your actual deployment command
