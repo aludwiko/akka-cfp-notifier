@@ -52,6 +52,9 @@ jobs:
           project-id: ${{ secrets.AKKA_PROD_PROJECT_ID }}
       - name: Test
         run: akka service list
+      - name: Build docker
+        run: |
+          mvn install --no-transfer-progress
       - name: Publish docker
         run: |
           mvn validate docker:push --no-transfer-progress
