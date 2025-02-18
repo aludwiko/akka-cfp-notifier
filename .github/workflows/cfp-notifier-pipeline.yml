@@ -1,0 +1,104 @@
+name: cfp-notifier-pipeline
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+    SERVICE_NAME: cfp-notifier
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '21'
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install Compose
+        uses: ndeloof/install-compose-action@v0.0.1
+        with:
+          version: v2.1.0 # defaults to 'latest'
+          legacy: true    # will also install in PATH as `docker-compose`
+      - run: docker-compose --version
+      - name: Build and verify
+        run: mvn clean verify --no-transfer-progress
+
+  deploy:
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '21'
+      - name: Install Compose
+        uses: ndeloof/install-compose-action@v0.0.1
+        with:
+          version: v2.1.0 # defaults to 'latest'
+          legacy: true    # will also install in PATH as `docker-compose`
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install Akka CLI
+        uses: akka/setup-akka-cli-action@v1
+        with:
+          token: ${{ secrets.AKKA_PROD_TOKEN }}
+          project-id: ${{ vars.AKKA_PROD_PROJECT_ID }}
+      - name: Test
+        run: akka service list
+      - name: Publish docker
+        run: |
+          mvn deploy --no-transfer-progress
+      - name: Deploy
+        run: |
+          export dockerImage=`mvn git-commit-id:revision help:evaluate -Dexpression=dockerImage -q -DforceStdout `
+          export dockerTag=`mvn git-commit-id:revision help:evaluate -Dexpression=dockerTag -q -DforceStdout`
+          export CFP_NOTIFIER_IMAGE=$dockerImage:$dockerTag
+          cat cfp-notifier.yml | envsubst > cfp-notifier-subst.yml
+          akka service apply -f cfp-notifier-subst.yml
+
+  verify-ready:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Install Akka CLI
+        uses: akka/setup-akka-cli-action@v1
+        with:
+          token: ${{ secrets.AKKA_PROD_TOKEN }}
+          project-id: ${{ vars.AKKA_PROD_PROJECT_ID }}
+      - name: Verify
+        run: |
+          # Replace the following line with your actual deployment command
+          service_status=$(akka service get $SERVICE_NAME -o json)
+  
+          # Extract status from JSON response        
+          status=$(echo $service_status | jq -r '.status.summary')
+          max_retries=20
+          retries=0
+  
+          # Loop to check status every minute (adjust interval as needed)
+          while [ "$status" != "Ready" ] && [ $retries -lt $max_retries ]; do
+            echo "Application status is not yet 'Ready'. Retrying ..."
+            sleep 15
+  
+            # Repeat the deployment command and update the status
+            service_status=$(akka service get $SERVICE_NAME -o json)
+            status=$(echo $service_status | jq -r '.status.summary')
+          
+            # Increment retry count
+            retries=$((retries+1))
+          done
+          
+          if [ "$status" != "Ready" ]; then
+            echo "Maximum retry attempts reached. Application status is still not 'Ready'."
+            exit 1
+          fi
+
+          echo "Application status is 'Ready'."
