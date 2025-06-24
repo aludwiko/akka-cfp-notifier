@@ -82,7 +82,7 @@ jobs:
           service_status=$(akka service get $SERVICE_NAME -o json)
   
           # Extract status from JSON response        
-          status=$(echo $service_status | jq -r '.status.summary')
+          status=$(echo $service_status | jq -r '.service.status.summary')
           max_retries=20
           retries=0
   
