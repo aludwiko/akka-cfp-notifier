@@ -88,7 +88,7 @@ jobs:
   
           # Loop to check status every minute (adjust interval as needed)
           while [ "$status" != "Ready" ] && [ $retries -lt $max_retries ]; do
-            echo "Application status is not yet 'Ready'. Retrying ..."
+            echo "Application status ($status) is not yet 'Ready'. Retrying ..."
             sleep 15
   
             # Repeat the deployment command and update the status
