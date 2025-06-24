@@ -93,7 +93,7 @@ jobs:
   
             # Repeat the deployment command and update the status
             service_status=$(akka service get $SERVICE_NAME -o json)
-            status=$(echo $service_status | jq -r '.status.summary')
+            status=$(echo $service_status | jq -r '.service.status.summary')
           
             # Increment retry count
             retries=$((retries+1))
