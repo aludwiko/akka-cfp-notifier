@@ -6,7 +6,7 @@
   <parent>
     <groupId>io.akka</groupId>
     <artifactId>akka-javasdk-parent</artifactId>
-    <version>3.0.0</version>
+    <version>3.3.2</version>
   </parent>
 
   <groupId>io.akka</groupId>
@@ -26,11 +26,6 @@
   </properties>
 
   <dependencies>
-    <dependency>
-      <groupId>com.typesafe.akka</groupId>
-      <artifactId>akka-http_2.13</artifactId>
-      <version>10.7.0</version>
-    </dependency>
     <dependency>
       <groupId>com.slack.api</groupId>
       <artifactId>slack-api-client</artifactId>
