@@ -1,4 +1,4 @@
-name: cfp-notifier
+name: cfp-notifier-2
 service:
   telemetry:
     tracing:
@@ -20,3 +20,6 @@ service:
         key: slack-verification-token
         name: slack-secret
   image: ${CFP_NOTIFIER_IMAGE}
+  resources:
+    runtime:
+      mode: embedded
