@@ -23,3 +23,5 @@ service:
   resources:
     runtime:
       mode: embedded
+    autoscaling:
+      maxInstances: 1
