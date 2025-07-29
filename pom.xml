@@ -20,7 +20,7 @@
     <akkaContainerRegistry>kcr.eu-central-1.kalix.io</akkaContainerRegistry>
     <akkaOrganization>lightbend-eng</akkaOrganization>
 
-    <docker.image>${akkaContainerRegistry}/${akkaOrganization}/akka-cfp-notifier-prod/${project.artifactId}</docker.image>
+    <docker.image>${akkaContainerRegistry}/${akkaOrganization}/akka-cfp-notifier-prod-gcp/${project.artifactId}</docker.image>
     <docker.tag>${project.version}-${git.commit.id.abbrev}</docker.tag>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
   </properties>
