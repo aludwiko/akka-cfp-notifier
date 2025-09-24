@@ -1,6 +1,7 @@
 package io.akka.application;
 
 import akka.Done;
+import akka.javasdk.annotations.ComponentId;
 import akka.javasdk.annotations.Consume;
 import akka.javasdk.annotations.DeleteHandler;
 import akka.javasdk.client.ComponentClient;
@@ -18,11 +19,13 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static io.akka.application.DurationCalculator.calculateDuration;
 import static java.util.Arrays.stream;
 
 
+@ComponentId("schedule-notification")
 @Consume.FromKeyValueEntity(CallForPaperEntity.class)
 public class ScheduleNotification extends Consumer {
 
@@ -41,7 +44,10 @@ public class ScheduleNotification extends Consumer {
   public Effect onChange(CallForPaper callForPaper) {
     Instant now = clock.instant();
     LocalDate today = LocalDate.ofInstant(now, clock.getZone());
-    List<CompletionStage<Done>> timersSchedules = getIntervals().stream().filter(applicableIntervals(callForPaper, today)).map(howManyDaysBefore -> {
+    List<Integer> intervals = getIntervals();
+    List<Integer> applicableIntervals = intervals.stream().filter(applicableIntervals(callForPaper, today)).toList();
+    logger.debug("Scheduling notifications for cfp: {} at intervals: {}, all intervals: {}", callForPaper, applicableIntervals, intervals);
+    List<CompletionStage<Done>> timersSchedules = applicableIntervals.stream().map(howManyDaysBefore -> {
       logger.info("Scheduling notification for cfp: {} {} days before {}", callForPaper, howManyDaysBefore, callForPaper.deadline());
       return timers().startSingleTimer(
         timerName(howManyDaysBefore, callForPaper.id()),
